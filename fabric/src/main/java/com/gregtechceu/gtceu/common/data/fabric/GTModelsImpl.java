@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DoorBlock;
 
 /**
  * @author KilaBash
@@ -65,6 +66,10 @@ public class GTModelsImpl {
 
     public static void rubberTreeSaplingModel(DataGenContext<Item, BlockItem> context, RegistrateItemModelProvider provider) {
         provider.generated(context, provider.modLoc("block/" + provider.name(context)));
+    }
+
+    public static void rubberDoorModel(DataGenContext<Block, DoorBlock> ctx, RegistrateBlockstateProvider prov) {
+        prov.doorBlock(ctx.getEntry(), GTCEu.id("block/rubber_door_bottom"), GTCEu.id("block/rubber_door_top"));
     }
 
     public static void longDistanceItemPipeModel(DataGenContext<Block, ? extends Block> ctx, RegistrateBlockstateProvider prov) {

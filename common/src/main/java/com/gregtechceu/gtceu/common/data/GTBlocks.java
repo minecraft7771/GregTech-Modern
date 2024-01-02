@@ -40,6 +40,7 @@ import com.lowdragmc.lowdraglib.Platform;
 import com.lowdragmc.lowdraglib.client.renderer.IRenderer;
 import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.providers.ProviderType;
+import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import com.tterrag.registrate.util.nullness.NonNullConsumer;
@@ -57,11 +58,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.HangingSignItem;
+import net.minecraft.world.item.SignItem;
 import net.minecraft.world.level.FoliageColor;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.AbstractTreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -875,44 +880,6 @@ public class GTBlocks {
     //**********     Misc     **********//
     //////////////////////////////////////
 
-    public static final BlockEntry<SaplingBlock> RUBBER_SAPLING = REGISTRATE.block("rubber_sapling", properties -> new SaplingBlock(new AbstractTreeGrower() {
-                protected ResourceKey<ConfiguredFeature<?, ?>> getConfiguredFeature(@Nonnull RandomSource random, boolean largeHive) {
-                    return GTConfiguredFeatures.RUBBER;
-                }
-            }, properties))
-            .initialProperties(() -> Blocks.OAK_SAPLING)
-            .lang("Rubber Sapling")
-            .blockstate(GTModels::createCrossBlockState)
-            .addLayer(() -> RenderType::cutoutMipped)
-            .tag(BlockTags.SAPLINGS)
-            .item()
-            .model(GTModels::rubberTreeSaplingModel)
-            .tag(ItemTags.SAPLINGS)
-            .onRegister(compassNode(GTCompassSections.GENERATIONS))
-            .build()
-            .register();
-
-
-    public static final BlockEntry<RubberLogBlock> RUBBER_LOG = REGISTRATE.block("rubber_log", RubberLogBlock::new)
-            .properties(p -> p.strength(2.0F).sound(SoundType.WOOD))
-            .loot((table, block) -> table.add(block, LootTable.lootTable()
-                    .withPool(table.applyExplosionCondition(block, LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)))
-                            .add(LootItem.lootTableItem(block)))
-                    .withPool(table.applyExplosionCondition(block, LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)))
-                            .add(LootItem.lootTableItem(GTItems.STICKY_RESIN.get())
-                                    .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
-                                            .setProperties(StatePropertiesPredicate.Builder.properties()
-                                                    .hasProperty(RubberLogBlock.NATURAL, true)))
-                                    .when(LootItemRandomChanceCondition.randomChance(0.85F))))))
-            .lang("Rubber Log")
-            .tag(BlockTags.LOGS)
-            .blockstate((ctx, provider) -> provider.logBlock(ctx.get()))
-            .item()
-            .tag(ItemTags.LOGS)
-            .onRegister(compassNode(GTCompassSections.GENERATIONS))
-            .build()
-            .register();
-
     // Fortune Level
     public static final float[] RUBBER_LEAVES_DROPPING_CHANCE = new float[]{0.05F, 0.0625F, 0.083333336F, 0.1F};
 
@@ -932,9 +899,29 @@ public class GTBlocks {
         return (stack, tintIndex) -> FoliageColor.getDefaultColor();
     }
 
+
+    public static final BlockSetType RUBBER_SET = BlockSetType.register(new BlockSetType(GTCEu.id("rubber").toString()));
+    public static final WoodType RUBBER_TYPE = WoodType.register(new WoodType(GTCEu.id("rubber").toString(), RUBBER_SET));
+
+    public static final BlockEntry<SaplingBlock> RUBBER_SAPLING = REGISTRATE.block("rubber_sapling", properties -> new SaplingBlock(new AbstractTreeGrower() {
+                protected ResourceKey<ConfiguredFeature<?, ?>> getConfiguredFeature(@Nonnull RandomSource random, boolean largeHive) {
+                    return GTConfiguredFeatures.RUBBER;
+                }
+            }, properties))
+            .initialProperties(() -> Blocks.SPRUCE_SAPLING)
+            .lang("Rubber Sapling")
+            .blockstate(GTModels::createCrossBlockState)
+            .addLayer(() -> RenderType::cutoutMipped)
+            .tag(BlockTags.SAPLINGS)
+            .item()
+            .model(GTModels::rubberTreeSaplingModel)
+            .tag(ItemTags.SAPLINGS)
+            .onRegister(compassNode(GTCompassSections.GENERATIONS))
+            .build()
+            .register();
     public static final BlockEntry<LeavesBlock> RUBBER_LEAVES = REGISTRATE
             .block("rubber_leaves", LeavesBlock::new)
-            .initialProperties(() -> Blocks.OAK_LEAVES)
+            .initialProperties(() -> Blocks.SPRUCE_LEAVES)
             .lang("Rubber Leaves")
             .blockstate((ctx, prov) -> createModelBlockState(ctx, prov, GTCEu.id("block/rubber_leaves")))
             .loot((table, block) -> table.add(block, table.createLeavesDrops(block, GTBlocks.RUBBER_SAPLING.get(), RUBBER_LEAVES_DROPPING_CHANCE)))
@@ -946,19 +933,172 @@ public class GTBlocks {
             .onRegister(compassNode(GTCompassSections.GENERATIONS))
             .build()
             .register();
-
+    public static final BlockEntry<RubberLogBlock> RUBBER_LOG = REGISTRATE.block("rubber_log", RubberLogBlock::new)
+            .initialProperties(() -> Blocks.SPRUCE_LOG)
+            .loot((table, block) -> table.add(block, LootTable.lootTable()
+                    .withPool(table.applyExplosionCondition(block, LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)))
+                            .add(LootItem.lootTableItem(block)))
+                    .withPool(table.applyExplosionCondition(block, LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)))
+                            .add(LootItem.lootTableItem(GTItems.STICKY_RESIN.get())
+                                    .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
+                                            .setProperties(StatePropertiesPredicate.Builder.properties()
+                                                    .hasProperty(RubberLogBlock.NATURAL, true)))
+                                    .when(LootItemRandomChanceCondition.randomChance(0.85F))))))
+            .lang("Rubber Log")
+            .tag(BlockTags.LOGS, CustomTags.RUBBER_LOGS_BLOCK)
+            .blockstate((ctx, provider) -> provider.logBlock(ctx.get()))
+            .item()
+            .tag(ItemTags.LOGS, CustomTags.RUBBER_LOGS_ITEM)
+            .onRegister(compassNode(GTCompassSections.GENERATIONS))
+            .build()
+            .register();
+    public static final BlockEntry<RotatedPillarBlock> RUBBER_WOOD = REGISTRATE.block("rubber_wood", RotatedPillarBlock::new)
+            .initialProperties(() -> Blocks.STRIPPED_SPRUCE_WOOD)
+            .lang("Rubber Log")
+            .tag(BlockTags.LOGS, CustomTags.RUBBER_LOGS_BLOCK)
+            .blockstate((ctx, provider) -> provider.axisBlock(ctx.get(), provider.blockTexture(ctx.get()), provider.blockTexture(ctx.get())))
+            .item()
+            .tag(ItemTags.LOGS, CustomTags.RUBBER_LOGS_ITEM)
+            .build()
+            .register();
+    public static final BlockEntry<RotatedPillarBlock> STRIPPED_RUBBER_LOG = REGISTRATE.block("stripped_rubber_log", RotatedPillarBlock::new)
+            .initialProperties(() -> Blocks.STRIPPED_SPRUCE_LOG)
+            .lang("Rubber Log")
+            .tag(BlockTags.LOGS, CustomTags.RUBBER_LOGS_BLOCK)
+            .blockstate((ctx, provider) -> provider.logBlock(ctx.get()))
+            .item()
+            .tag(ItemTags.LOGS, CustomTags.RUBBER_LOGS_ITEM)
+            .build()
+            .register();
+    public static final BlockEntry<RotatedPillarBlock> STRIPPED_RUBBER_WOOD = REGISTRATE.block("stripped_rubber_wood", RotatedPillarBlock::new)
+            .initialProperties(() -> Blocks.STRIPPED_SPRUCE_WOOD)
+            .lang("Rubber Log")
+            .tag(BlockTags.LOGS, CustomTags.RUBBER_LOGS_BLOCK)
+            .blockstate((ctx, provider) -> provider.axisBlock(ctx.get(), provider.blockTexture(ctx.get()), provider.blockTexture(ctx.get())))
+            .item()
+            .tag(ItemTags.LOGS, CustomTags.RUBBER_LOGS_ITEM)
+            .build()
+            .register();
     public static final BlockEntry<Block> RUBBER_PLANK = REGISTRATE
             .block("rubber_planks", Block::new)
-            .initialProperties(() -> Blocks.OAK_PLANKS)
+            .initialProperties(() -> Blocks.SPRUCE_PLANKS)
             .lang("Rubber Planks")
-            .properties(p -> p.mapColor(MapColor.TERRACOTTA_GRAY))
             .tag(BlockTags.PLANKS)
             .item()
             .tag(ItemTags.PLANKS)
             .onRegister(compassNode(GTCompassSections.GENERATIONS))
             .build()
             .register();
+    public static final BlockEntry<SlabBlock> RUBBER_SLAB = REGISTRATE
+            .block("rubber_slab", SlabBlock::new)
+            .initialProperties(() -> Blocks.SPRUCE_SLAB)
+            .lang("Rubber Slab")
+            .tag(BlockTags.SLABS)
+            .item()
+            .tag(ItemTags.SLABS)
+            .onRegister(compassNode(GTCompassSections.GENERATIONS))
+            .build()
+            .register();
+    public static final BlockEntry<StandingSignBlock> RUBBER_SIGN = REGISTRATE
+            .block("rubber_sign", (p) -> new StandingSignBlock(p, RUBBER_TYPE))
+            .initialProperties(() -> Blocks.SPRUCE_SIGN)
+            .lang("Rubber Sign")
+            .tag(BlockTags.STANDING_SIGNS)
+            .item((b, p) -> new SignItem(p, b, GTBlocks.RUBBER_WALL_SIGN.get()))
+            .tag(ItemTags.SIGNS)
+            .build()
+            .register();
+    public static final BlockEntry<WallSignBlock> RUBBER_WALL_SIGN = REGISTRATE
+            .block("rubber_wall_sign", (p) -> new WallSignBlock(p, RUBBER_TYPE))
+            .initialProperties(() -> Blocks.SPRUCE_WALL_SIGN)
+            .lang("Rubber Sign")
+            .tag(BlockTags.WALL_SIGNS)
+            .loot((table, block) -> table.dropOther(block, RUBBER_SIGN.asItem()))
+            .register();
+    public static final BlockEntry<CeilingHangingSignBlock> RUBBER_HANGING_SIGN = REGISTRATE
+            .block("rubber_hanging_sign", (p) -> new CeilingHangingSignBlock(p, RUBBER_TYPE))
+            .initialProperties(() -> Blocks.SPRUCE_HANGING_SIGN)
+            .lang("Rubber Hanging Sign")
+            .tag(BlockTags.CEILING_HANGING_SIGNS)
+            .item((b, p) -> new HangingSignItem(b, GTBlocks.RUBBER_WALL_HANGING_SIGN.get(), p))
+            .tag(ItemTags.HANGING_SIGNS)
+            .build()
+            .register();
+    public static final BlockEntry<WallHangingSignBlock> RUBBER_WALL_HANGING_SIGN = REGISTRATE
+            .block("rubber_wall_hanging_sign", (p) -> new WallHangingSignBlock(p, RUBBER_TYPE))
+            .initialProperties(() -> Blocks.SPRUCE_WALL_HANGING_SIGN)
+            .lang("Rubber Hanging Sign")
+            .tag(BlockTags.WALL_HANGING_SIGNS)
+            .loot((table, block) -> table.dropOther(block, RUBBER_HANGING_SIGN.asItem()))
+            .register();
+    public static final BlockEntry<PressurePlateBlock> RUBBER_PRESSURE_PLATE = REGISTRATE
+            .block("rubber_pressure_plate", (p) -> new PressurePlateBlock(PressurePlateBlock.Sensitivity.EVERYTHING, p, RUBBER_SET))
+            .initialProperties(() -> Blocks.SPRUCE_PRESSURE_PLATE)
+            .lang("Rubber Pressure Plate")
+            .tag(BlockTags.WOODEN_PRESSURE_PLATES)
+            .item()
+            .tag(ItemTags.WOODEN_PRESSURE_PLATES)
+            .build()
+            .register();
+    public static final BlockEntry<TrapDoorBlock> RUBBER_TRAPDOOR = REGISTRATE
+            .block("rubber_trapdoor", (p) -> new TrapDoorBlock(p, RUBBER_SET))
+            .initialProperties(() -> Blocks.SPRUCE_TRAPDOOR)
+            .lang("Rubber Trapdoor")
+            .tag(BlockTags.WOODEN_TRAPDOORS)
+            .item()
+            .tag(ItemTags.WOODEN_TRAPDOORS)
+            .build()
+            .register();
+    public static final BlockEntry<StairBlock> RUBBER_STAIRS = REGISTRATE
+            .block("rubber_stairs", (p) -> new StairBlock(RUBBER_PLANK.getDefaultState(), p))
+            .initialProperties(() -> Blocks.SPRUCE_STAIRS)
+            .lang("Rubber Stairs")
+            .tag(BlockTags.STAIRS)
+            .item()
+            .tag(ItemTags.STAIRS)
+            .build()
+            .register();
+    public static final BlockEntry<ButtonBlock> RUBBER_BUTTON = REGISTRATE
+            .block("rubber_button", (p) -> new ButtonBlock(p, RUBBER_SET, 30, true))
+            .initialProperties(() -> Blocks.SPRUCE_BUTTON)
+            .lang("Rubber Button")
+            .tag(BlockTags.WOODEN_BUTTONS)
+            .item()
+            .tag(ItemTags.WOODEN_BUTTONS)
+            .build()
+            .register();
+    public static final BlockEntry<FenceGateBlock> RUBBER_FENCE_GATE = REGISTRATE
+            .block("rubber_fence_gate", (p) -> new FenceGateBlock(p, RUBBER_TYPE))
+            .initialProperties(() -> Blocks.SPRUCE_FENCE_GATE)
+            .lang("Rubber Fence Gate")
+            .tag(BlockTags.FENCE_GATES)
+            .item()
+            .tag(ItemTags.FENCE_GATES)
+            .build()
+            .register();
+    public static final BlockEntry<FenceBlock> RUBBER_FENCE = REGISTRATE
+            .block("rubber_fence", FenceBlock::new)
+            .initialProperties(() -> Blocks.SPRUCE_FENCE)
+            .lang("Rubber Fence")
+            .tag(BlockTags.WOODEN_FENCES)
+            .item()
+            .tag(ItemTags.WOODEN_FENCES)
+            .build()
+            .register();
+    public static final BlockEntry<DoorBlock> RUBBER_DOOR = REGISTRATE
+            .block("rubber_door", (p) -> new DoorBlock(p, RUBBER_SET))
+            .initialProperties(() -> Blocks.SPRUCE_DOOR)
+            .lang("Rubber Door")
+            .loot(RegistrateBlockLootTables::createDoorTable)
+            .blockstate(GTModels::rubberDoorModel)
+            .tag(BlockTags.WOODEN_DOORS)
+            .item()
+            .tag(ItemTags.WOODEN_DOORS)
+            .build()
+            .register();
 
+    public static final BlockSetType TREATED_WOOD_SET = BlockSetType.register(new BlockSetType(GTCEu.id("treated_wood").toString()));
+    public static final WoodType TREATED_WOOD_TYPE = WoodType.register(new WoodType(GTCEu.id("treated_wood").toString(), TREATED_WOOD_SET));
     public static final BlockEntry<Block> TREATED_WOOD_PLANK = REGISTRATE
             .block("treated_wood_planks", Block::new)
             .initialProperties(() -> Blocks.OAK_PLANKS)

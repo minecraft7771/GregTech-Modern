@@ -22,6 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.material.Fluid;
 
 /**
@@ -57,6 +58,11 @@ public class GTModels {
 
     @ExpectPlatform
     public static void rubberTreeSaplingModel(DataGenContext<Item, BlockItem> context, RegistrateItemModelProvider provider) {
+        throw new AssertionError();
+    }
+
+    @ExpectPlatform
+    public static void rubberDoorModel(DataGenContext<Block, DoorBlock> ctx, RegistrateBlockstateProvider prov) {
         throw new AssertionError();
     }
 

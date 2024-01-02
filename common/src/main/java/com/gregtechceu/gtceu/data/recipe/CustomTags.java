@@ -58,7 +58,8 @@ public class CustomTags {
     public static final TagKey<Item> TREE_FELLING_TOOLS = TagUtil.createPlatformItemTag("tools/tree_felling", "tree_felling_tools");
 
     // Platform-dependent tags
-    public static final TagKey<Item> TAG_WOODEN_CHESTS = TagUtil.createPlatformItemTag("chests/wooden", "chests");
+    public static final TagKey<Item> WOODEN_CHESTS = TagUtil.createPlatformItemTag("chests/wooden", "chests");
+    public static final TagKey<Item> RUBBER_LOGS_ITEM = TagUtil.createPlatformItemTag("chests/wooden", "chests");
 
     public static final TagKey<Block> NEEDS_WOOD_TOOL = TagUtil.createPlatformUnprefixedTag(BuiltInRegistries.BLOCK, "forge:needs_wood_tool", "fabric:needs_tool_level_0");
     public static final TagKey<Block> NEEDS_GOLD_TOOL = TagUtil.createPlatformUnprefixedTag(BuiltInRegistries.BLOCK, "forge:needs_gold_tool", "fabric:needs_tool_level_0");
@@ -84,7 +85,7 @@ public class CustomTags {
     public static final TagKey<Block> GLASS_PANES_BLOCK = TagUtil.createBlockTag("glass_panes");
     public static final TagKey<Block> CREATE_SEATS = TagUtil.optionalTag(BuiltInRegistries.BLOCK, new ResourceLocation(GTValues.MODID_CREATE, "seats"));
     public static final TagKey<Block> ORE_BLOCKS = TagUtil.createBlockTag("ores");
-
+    public static final TagKey<Block> RUBBER_LOGS_BLOCK = TagUtil.createPlatformBlockTag("logs/rubber", "rubber_logs", false);
 
     public static final TagKey<Biome> IS_SWAMP = TagUtil.createTag(Registries.BIOME, "is_swamp", false);
     public static final TagKey<Biome> IS_SANDY = TagUtil.createModTag(Registries.BIOME, "is_sandy");
