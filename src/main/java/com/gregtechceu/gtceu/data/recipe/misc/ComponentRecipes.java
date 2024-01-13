@@ -262,6 +262,10 @@ public class ComponentRecipes {
                 .inputFluids(Lubricant.getFluid(500))
                 .inputFluids(StyreneButadieneRubber.getFluid(L * 16))
                 .outputItems(CONVEYOR_MODULE_ZPM)
+                .scannerResearch(b -> b
+                        .researchStack(CONVEYOR_MODULE_LuV.asStack())
+                        .duration(1200)
+                        .EUt(VA[IV]))
                 .duration(600).EUt(24000).save(provider);
 
         ASSEMBLY_LINE_RECIPES.recipeBuilder("conveyor_module_uv")
@@ -771,6 +775,7 @@ public class ComponentRecipes {
                 .inputItems(cableGtSingle, NiobiumTitanium, 4)
                 .inputFluids(SolderingAlloy.getFluid(L * 2))
                 .outputItems(SENSOR_LuV)
+                .scannerResearch(SENSOR_IV.asStack())
                 .duration(600).EUt(6000).save(provider);
 
         ASSEMBLY_LINE_RECIPES.recipeBuilder("sensor_zpm")

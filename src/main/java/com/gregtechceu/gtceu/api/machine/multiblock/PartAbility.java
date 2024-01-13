@@ -47,6 +47,16 @@ public class PartAbility {
     public static final PartAbility INPUT_LASER = new PartAbility("input_laser");
     public static final PartAbility OUTPUT_LASER = new PartAbility("output_laser");
 
+    public static final PartAbility COMPUTATION_DATA_RECEPTION = new PartAbility("computation_data_reception");
+    public static final PartAbility COMPUTATION_DATA_TRANSMISSION = new PartAbility("computation_data_transmission");
+    public static final PartAbility OPTICAL_DATA_RECEPTION = new PartAbility("optical_data_reception");
+    public static final PartAbility OPTICAL_DATA_TRANSMISSION = new PartAbility("optical_data_transmission");
+
+    public static final PartAbility DATA_ACCESS = new PartAbility("data_access");
+
+    public static final PartAbility HPCA_COMPONENT = new PartAbility("hpca_component");
+    public static final PartAbility OBJECT_HOLDER = new PartAbility("object_holder");
+
     /**
      * tier -> available blocks
      */

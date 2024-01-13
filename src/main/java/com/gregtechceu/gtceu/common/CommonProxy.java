@@ -20,6 +20,7 @@ import com.gregtechceu.gtceu.common.item.tool.forge.ToolLootModifier;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.gregtechceu.gtceu.data.GregTechDatagen;
 import com.gregtechceu.gtceu.integration.top.forge.TheOneProbePluginImpl;
+import com.gregtechceu.gtceu.utils.AssemblyLineManager;
 import com.lowdragmc.lowdraglib.LDLib;
 import com.lowdragmc.lowdraglib.gui.factory.UIFactory;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
@@ -99,6 +100,8 @@ public class CommonProxy {
         WorldGenLayers.registerAll();
         GTFeatures.init();
         GTFeatures.register();
+        // Register data stick copying custom scanner logic
+        AssemblyLineManager.registerScannerLogic();
     }
 
 

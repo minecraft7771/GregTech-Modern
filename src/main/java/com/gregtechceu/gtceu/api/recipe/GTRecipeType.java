@@ -1,20 +1,19 @@
 package com.gregtechceu.gtceu.api.recipe;
 
 import com.gregtechceu.gtceu.GTCEu;
+import com.gregtechceu.gtceu.api.capability.IEnergyContainer;
 import com.gregtechceu.gtceu.api.capability.recipe.*;
 import com.gregtechceu.gtceu.api.data.chemical.material.stack.UnificationEntry;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.gui.SteamTexture;
 import com.gregtechceu.gtceu.api.gui.WidgetUtils;
 import com.gregtechceu.gtceu.api.gui.editor.IEditableUI;
-import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.api.sound.SoundEntry;
 import com.gregtechceu.gtceu.core.mixins.RecipeManagerInvoker;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 import com.gregtechceu.gtceu.integration.emi.recipe.GTRecipeTypeEmiCategory;
 import com.gregtechceu.gtceu.integration.jei.recipe.GTRecipeTypeCategory;
 import com.gregtechceu.gtceu.integration.rei.recipe.GTRecipeTypeDisplayCategory;
-import com.gregtechceu.gtceu.utils.CycleFluidStorage;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 import com.gregtechceu.gtceu.utils.OverlayingFluidStorage;
 import com.lowdragmc.lowdraglib.LDLib;
@@ -28,8 +27,7 @@ import com.lowdragmc.lowdraglib.gui.texture.ResourceTexture;
 import com.lowdragmc.lowdraglib.gui.widget.*;
 import com.lowdragmc.lowdraglib.jei.IngredientIO;
 import com.lowdragmc.lowdraglib.jei.JEIPlugin;
-import com.lowdragmc.lowdraglib.misc.FluidStorage;
-import com.lowdragmc.lowdraglib.side.fluid.IFluidStorage;
+import com.lowdragmc.lowdraglib.side.fluid.FluidStack;
 import com.lowdragmc.lowdraglib.side.fluid.IFluidTransfer;
 import com.lowdragmc.lowdraglib.side.item.IItemTransfer;
 import com.lowdragmc.lowdraglib.utils.Position;
@@ -38,9 +36,7 @@ import com.lowdragmc.lowdraglib.utils.Size;
 import dev.emi.emi.api.EmiApi;
 import it.unimi.dsi.fastutil.bytes.Byte2ObjectArrayMap;
 import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -60,8 +56,10 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.ItemLike;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.util.*;
@@ -75,6 +73,8 @@ import java.util.stream.Collectors;
  */
 @Accessors(chain = true)
 public class GTRecipeType implements RecipeType<GTRecipe> {
+    private static final List<ICustomScannerLogic> CUSTOM_SCANNER_LOGICS = new ArrayList<>();
+
     public final ResourceLocation registryName;
     public final String group;
     public final Object2IntMap<RecipeCapability<?>> maxInputs = new Object2IntOpenHashMap<>();
@@ -116,6 +116,10 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
     @Getter
     protected final Map<RecipeType<?>, List<GTRecipe>> proxyRecipes;
     private CompoundTag customUICache;
+    private final Map<String, Collection<GTRecipe>> researchEntries = new Object2ObjectOpenHashMap<>();
+    @Getter
+    @Setter
+    private boolean isScanner;
 
     public GTRecipeType(ResourceLocation registryName, String group, RecipeType<?>... proxyRecipes) {
         this.registryName = registryName;
@@ -229,6 +233,25 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
                     .toList();
             matches.addAll(found);
         }
+        for (ICustomScannerLogic logic : CUSTOM_SCANNER_LOGICS) {
+            List<ItemStack> itemInputs = new ArrayList<>();
+            for (IRecipeHandler<?> transfer : holder.getCapabilitiesProxy().get(IO.IN, ItemRecipeCapability.CAP)) {
+                if (transfer instanceof IItemTransfer itemTransfer) {
+                    for (int i = 0; i < itemTransfer.getSlots(); ++i) {
+                        itemInputs.add(itemTransfer.getStackInSlot(i));
+                    }
+                }
+            }
+            List<FluidStack> fluidInputs = new ArrayList<>();
+            for (IRecipeHandler<?> transfer : holder.getCapabilitiesProxy().get(IO.IN, FluidRecipeCapability.CAP)) {
+                if (transfer instanceof IFluidTransfer itemTransfer) {
+                    for (int i = 0; i < itemTransfer.getTanks(); ++i) {
+                        fluidInputs.add(itemTransfer.getFluidInTank(i));
+                    }
+                }
+            }
+            matches.add(logic.createCustomRecipe(((IEnergyContainer)holder.getCapabilitiesProxy().get(IO.IN, EURecipeCapability.CAP).get(0)).getInputVoltage(), itemInputs, fluidInputs));
+        }
         return matches;
     }
 
@@ -281,6 +304,28 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
     public GTRecipeType onRecipeBuild(BiConsumer<GTRecipeBuilder, Consumer<FinishedRecipe>> onBuild) {
         recipeBuilder.onSave(onBuild);
         return this;
+    }
+
+    public void addDataStickEntry(@Nonnull String researchId, @Nonnull GTRecipe recipe) {
+        Collection<GTRecipe> collection = researchEntries.computeIfAbsent(researchId, (k) -> new ObjectOpenHashSet<>());
+        collection.add(recipe);
+    }
+
+    @Nullable
+    public Collection<GTRecipe> getDataStickEntry(@Nonnull String researchId) {
+        return researchEntries.get(researchId);
+    }
+
+    public boolean removeDataStickEntry(@Nonnull String researchId, @Nonnull GTRecipe recipe) {
+        Collection<GTRecipe> collection = researchEntries.get(researchId);
+        if (collection == null) return false;
+        if (collection.remove(recipe)) {
+            if (collection.isEmpty()) {
+                return researchEntries.remove(researchId) != null;
+            }
+            return true;
+        }
+        return false;
     }
 
     //////////////////////////////////////
@@ -533,6 +578,44 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
             builder.duration(smeltingRecipe.getCookingTime());
         }
         return GTRecipeSerializer.SERIALIZER.fromJson(id, builder.build().serializeRecipe());
+    }
+
+    public @NotNull List<GTRecipe> getRepresentativeRecipes() {
+        List<GTRecipe> recipes = new ArrayList<>();
+        for (ICustomScannerLogic logic : CUSTOM_SCANNER_LOGICS) {
+            List<GTRecipe> logicRecipes = logic.getRepresentativeRecipes();
+            if (logicRecipes != null && !logicRecipes.isEmpty()) {
+                recipes.addAll(logicRecipes);
+            }
+        }
+        return recipes;
+    }
+
+    /**
+     *
+     * @param logic A function which is passed the normal findRecipe() result. Returns null if no valid recipe for the custom logic is found.
+     */
+    public static void registerCustomScannerLogic(ICustomScannerLogic logic) {
+        CUSTOM_SCANNER_LOGICS.add(logic);
+    }
+
+    public interface ICustomScannerLogic {
+
+        /**
+         * @return A custom recipe to run given the current Scanner's inputs. Will be called only if a registered
+         *         recipe is not found to run. Return null if no recipe should be run by your logic.
+         */
+        @Nullable
+        GTRecipe createCustomRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs);
+
+        /**
+         * @return A list of Recipes that are never registered, but are added to JEI to demonstrate the custom logic.
+         *         Not required, can return empty or null to not add any.
+         */
+        @Nullable
+        default List<GTRecipe> getRepresentativeRecipes() {
+            return null;
+        }
     }
 
 }

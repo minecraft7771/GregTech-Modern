@@ -6,6 +6,7 @@ import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys;
 import com.gregtechceu.gtceu.data.recipe.CustomTags;
+import com.gregtechceu.gtceu.forge.core.mixins.PartialNbtIngredientAccessor;
 import com.lowdragmc.lowdraglib.LDLib;
 import com.lowdragmc.lowdraglib.side.fluid.FluidHelper;
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack;
@@ -16,17 +17,21 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.common.crafting.PartialNBTIngredient;
+import net.minecraftforge.common.crafting.StrictNBTIngredient;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
@@ -384,6 +389,16 @@ public class GTUtil {
 
         return world.isDay();
 
+    }
+
+    @Nullable
+    public static CompoundTag getIngredientTag(Ingredient ingredient) {
+        if (ingredient instanceof PartialNBTIngredient partialNBTIngredient) {
+            return ((PartialNbtIngredientAccessor)partialNBTIngredient).getNbt();
+        } else if (ingredient instanceof StrictNBTIngredient strictNBTIngredient) {
+            return strictNBTIngredient.getItems()[0].getTag();
+        }
+        return null;
     }
 
 }
