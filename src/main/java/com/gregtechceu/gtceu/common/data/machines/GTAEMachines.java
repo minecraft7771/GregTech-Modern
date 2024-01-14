@@ -1,4 +1,4 @@
-package com.gregtechceu.gtceu.integration.ae2;
+package com.gregtechceu.gtceu.common.data.machines;
 
 import com.gregtechceu.gtceu.api.data.RotationState;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
