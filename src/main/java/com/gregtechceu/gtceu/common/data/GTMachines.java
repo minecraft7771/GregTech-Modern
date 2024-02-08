@@ -50,6 +50,7 @@ import com.gregtechceu.gtceu.common.machine.steam.SteamMinerMachine;
 import com.gregtechceu.gtceu.common.machine.steam.SteamSolidBoilerMachine;
 import com.gregtechceu.gtceu.common.machine.steam.SteamSolarBoiler;
 import com.gregtechceu.gtceu.common.machine.storage.*;
+import com.gregtechceu.gtceu.common.machine.transfer.RobotArmMachine;
 import com.gregtechceu.gtceu.common.pipelike.fluidpipe.longdistance.LDFluidEndpointMachine;
 import com.gregtechceu.gtceu.common.pipelike.item.longdistance.LDItemEndpointMachine;
 import com.gregtechceu.gtceu.config.ConfigHolder;
@@ -383,6 +384,18 @@ public class GTMachines {
                     .compassNode("miner")
                     .register(),
             LV, MV, HV);
+
+    //////////////////////////////////////
+    //*********    Transfer    *********//
+    //////////////////////////////////////
+    public final static MachineDefinition ROBOT_ARM = REGISTRATE.machine("robot_arm", RobotArmMachine::new)
+        .blockProp(p -> p.noOcclusion())
+        .rotationState(RotationState.NONE)
+        .renderer(() -> new RobotArmRenderer())
+        .hasTESR(true)
+        .shape(Shapes.box(0.2, 0, 0.2, 0.8, 1, 0.8))
+        .compassNodeSelf()
+        .register();
 
     //////////////////////////////////////
     //*********     Storage    *********//

@@ -21,7 +21,9 @@ import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
 import com.gregtechceu.gtceu.api.machine.trait.MachineTrait;
 import com.gregtechceu.gtceu.api.misc.IOFluidTransferList;
 import com.gregtechceu.gtceu.api.misc.IOItemTransferList;
+import com.lowdragmc.lowdraglib.networking.LDLNetworking;
 import com.lowdragmc.lowdraglib.syncdata.IEnhancedManaged;
+import com.lowdragmc.lowdraglib.syncdata.IManaged;
 import com.lowdragmc.lowdraglib.syncdata.annotation.RequireRerender;
 import com.gregtechceu.gtceu.common.cover.FluidFilterCover;
 import com.gregtechceu.gtceu.common.cover.ItemFilterCover;
@@ -47,6 +49,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -201,6 +204,20 @@ public class MetaMachine implements IEnhancedManaged, IToolable, ITickSubscripti
 
     public void loadCustomPersistedData(CompoundTag tag) {
 
+    }
+
+    /**
+     * RPC, use this method to send custom data to player (client).
+     */
+    protected void rpcToPlayer(ServerPlayer player, String methodName, Object... args) {
+        getHolder().rpcToPlayer(this, player, methodName, args);
+    }
+
+    /**
+     * RPC, use this method to send custom data to all players (client) tracking this machine.
+     */
+    protected void rpcToTracking(String methodName, Object... args) {
+        getHolder().rpcToTracking(this, methodName, args);
     }
 
     //////////////////////////////////////
