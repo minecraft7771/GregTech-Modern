@@ -33,8 +33,10 @@ import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
 import com.gregtechceu.gtceu.api.registry.registrate.MultiblockMachineBuilder;
 import com.gregtechceu.gtceu.client.TooltipHelper;
+import com.gregtechceu.gtceu.client.instance.RobotArmInstance;
 import com.gregtechceu.gtceu.client.renderer.machine.*;
 import com.gregtechceu.gtceu.common.block.BoilerFireboxType;
+import com.gregtechceu.gtceu.common.blockentity.KineticMachineBlockEntity;
 import com.gregtechceu.gtceu.common.machine.electric.*;
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.*;
 import com.gregtechceu.gtceu.common.machine.multiblock.generator.LargeCombustionEngineMachine;
@@ -53,16 +55,24 @@ import com.gregtechceu.gtceu.common.machine.storage.*;
 import com.gregtechceu.gtceu.common.machine.transfer.RobotArmMachine;
 import com.gregtechceu.gtceu.common.pipelike.fluidpipe.longdistance.LDFluidEndpointMachine;
 import com.gregtechceu.gtceu.common.pipelike.item.longdistance.LDItemEndpointMachine;
+import com.gregtechceu.gtceu.common.registry.GTRegistration;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.gregtechceu.gtceu.data.lang.LangHandler;
 import com.gregtechceu.gtceu.integration.ae2.GTAEMachines;
 import com.gregtechceu.gtceu.integration.kjs.GTRegistryInfo;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 import com.gregtechceu.gtceu.utils.GTUtil;
+import com.jozufozu.flywheel.api.MaterialManager;
+import com.jozufozu.flywheel.backend.instancing.InstancedRenderRegistry;
+import com.jozufozu.flywheel.backend.instancing.blockentity.BlockEntityInstance;
+import com.lowdragmc.lowdraglib.LDLib;
 import com.lowdragmc.lowdraglib.Platform;
 import com.lowdragmc.lowdraglib.side.fluid.FluidHelper;
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack;
 import com.lowdragmc.lowdraglib.utils.BlockInfo;
+import com.tterrag.registrate.util.OneTimeEventReceiver;
+import com.tterrag.registrate.util.nullness.NonNullConsumer;
+import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.ints.Int2LongFunction;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
@@ -77,10 +87,15 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoader;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -88,6 +103,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -392,9 +408,9 @@ public class GTMachines {
         .blockProp(p -> p.noOcclusion())
         .rotationState(RotationState.NONE)
         .renderer(() -> new RobotArmRenderer())
+        .onBlockEntityRegister(attachInstance(() -> RobotArmInstance::new, false))
         .hasTESR(true)
         .shape(Shapes.box(0.2, 0, 0.2, 0.8, 1, 0.8))
-        .compassNodeSelf()
         .register();
 
     //////////////////////////////////////
@@ -2016,6 +2032,19 @@ public class GTMachines {
         if (recipeType.getMaxInputs(FluidRecipeCapability.CAP) > 0 || recipeType.getMaxOutputs(FluidRecipeCapability.CAP) > 0)
             tooltipComponents.add(Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity", tankCapacity));
         return tooltipComponents.toArray(Component[]::new);
+    }
+
+    public static NonNullConsumer<BlockEntityType<BlockEntity>> attachInstance(NonNullSupplier<BiFunction<MaterialManager, BlockEntity, BlockEntityInstance<? super BlockEntity>>> instanceFactory, boolean skipRender) {
+        return (blockEntityType) -> {
+            if (GTCEu.isFlywheelLoaded() && instanceFactory != null && LDLib.isClient()) {
+                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
+                    OneTimeEventReceiver.addModListener(GTRegistration.REGISTRATE, FMLClientSetupEvent.class,
+                        ($) -> InstancedRenderRegistry.configure(blockEntityType)
+                            .factory(instanceFactory.get())
+                            .skipRender(be -> skipRender)
+                            .apply()));
+            }
+        };
     }
 
     public static void init() {

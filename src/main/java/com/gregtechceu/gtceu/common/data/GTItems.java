@@ -1013,107 +1013,120 @@ public class GTItems {
 
     public static ItemEntry<ComponentItem> ROBOT_ARM_LV = REGISTRATE.item("lv_robot_arm", ComponentItem::create)
             .lang("LV Robot Arm")
-            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[0]))).onRegister(attach(new TooltipBehavior(lines -> {
+            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[0]), new RobotArmBehaviour(GTValues.LV))).onRegister(attach(new TooltipBehavior(lines -> {
                 lines.add(Component.translatable("item.gtceu.robot.arm.tooltip"));
                 lines.add(Component.translatable("gtceu.universal.tooltip.item_transfer_rate", 8));
             })))
             .onRegister(compassNodeExist(GTCompassSections.COVERS, "robot_arm", GTCompassNodes.COVER))
+            .onRegister(compassNodeExist(GTCompassSections.TRANSFER, "robot_arm_block"))
             .register();
     public static ItemEntry<ComponentItem> ROBOT_ARM_MV = REGISTRATE.item("mv_robot_arm", ComponentItem::create)
             .lang("MV Robot Arm")
-            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[1]))).onRegister(attach(new TooltipBehavior(lines -> {
+            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[1]), new RobotArmBehaviour(GTValues.MV))).onRegister(attach(new TooltipBehavior(lines -> {
                 lines.add(Component.translatable("item.gtceu.robot.arm.tooltip"));
                 lines.add(Component.translatable("gtceu.universal.tooltip.item_transfer_rate", 32));
             })))
             .onRegister(compassNodeExist(GTCompassSections.COVERS, "robot_arm", GTCompassNodes.COVER))
+            .onRegister(compassNodeExist(GTCompassSections.TRANSFER, "robot_arm_block"))
             .register();
     public static ItemEntry<ComponentItem> ROBOT_ARM_HV = REGISTRATE.item("hv_robot_arm", ComponentItem::create)
             .lang("HV Robot Arm")
-            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[2]))).onRegister(attach(new TooltipBehavior(lines -> {
+            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[2]), new RobotArmBehaviour(GTValues.HV))).onRegister(attach(new TooltipBehavior(lines -> {
                 lines.add(Component.translatable("item.gtceu.robot.arm.tooltip"));
                 lines.add(Component.translatable("gtceu.universal.tooltip.item_transfer_rate", 64));
             })))
             .onRegister(compassNodeExist(GTCompassSections.COVERS, "robot_arm", GTCompassNodes.COVER))
+            .onRegister(compassNodeExist(GTCompassSections.TRANSFER, "robot_arm_block"))
             .register();
     public static ItemEntry<ComponentItem> ROBOT_ARM_EV = REGISTRATE.item("ev_robot_arm", ComponentItem::create)
             .lang("EV Robot Arm")
-            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[3]))).onRegister(attach(new TooltipBehavior(lines -> {
+            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[3]), new RobotArmBehaviour(GTValues.EV))).onRegister(attach(new TooltipBehavior(lines -> {
                 lines.add(Component.translatable("item.gtceu.robot.arm.tooltip"));
                 lines.add(Component.translatable("gtceu.universal.tooltip.item_transfer_rate_stacks", 3));
             })))
             .onRegister(compassNodeExist(GTCompassSections.COVERS, "robot_arm", GTCompassNodes.COVER))
+            .onRegister(compassNodeExist(GTCompassSections.TRANSFER, "robot_arm_block"))
             .register();
     public static ItemEntry<ComponentItem> ROBOT_ARM_IV = REGISTRATE.item("iv_robot_arm", ComponentItem::create)
             .lang("IV Robot Arm")
-            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[4]))).onRegister(attach(new TooltipBehavior(lines -> {
+            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[4]), new RobotArmBehaviour(GTValues.IV))).onRegister(attach(new TooltipBehavior(lines -> {
                 lines.add(Component.translatable("item.gtceu.robot.arm.tooltip"));
                 lines.add(Component.translatable("gtceu.universal.tooltip.item_transfer_rate_stacks", 8));
             })))
             .onRegister(compassNodeExist(GTCompassSections.COVERS, "robot_arm", GTCompassNodes.COVER))
+            .onRegister(compassNodeExist(GTCompassSections.TRANSFER, "robot_arm_block"))
             .register();
     public static ItemEntry<ComponentItem> ROBOT_ARM_LuV = REGISTRATE.item("luv_robot_arm", ComponentItem::create)
             .lang("LuV Robot Arm")
-            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[5]))).onRegister(attach(new TooltipBehavior(lines -> {
+            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[5]), new RobotArmBehaviour(GTValues.LuV))).onRegister(attach(new TooltipBehavior(lines -> {
                 lines.add(Component.translatable("item.gtceu.robot.arm.tooltip"));
                 lines.add(Component.translatable("gtceu.universal.tooltip.item_transfer_rate_stacks", 16));
             })))
             .onRegister(compassNodeExist(GTCompassSections.COVERS, "robot_arm", GTCompassNodes.COVER))
+            .onRegister(compassNodeExist(GTCompassSections.TRANSFER, "robot_arm_block"))
             .register();
     public static ItemEntry<ComponentItem> ROBOT_ARM_ZPM = REGISTRATE.item("zpm_robot_arm", ComponentItem::create)
             .lang("ZPM Robot Arm")
-            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[6]))).onRegister(attach(new TooltipBehavior(lines -> {
+            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[6]), new RobotArmBehaviour(GTValues.ZPM))).onRegister(attach(new TooltipBehavior(lines -> {
                 lines.add(Component.translatable("item.gtceu.robot.arm.tooltip"));
                 lines.add(Component.translatable("gtceu.universal.tooltip.item_transfer_rate_stacks", 16));
             })))
             .onRegister(compassNodeExist(GTCompassSections.COVERS, "robot_arm", GTCompassNodes.COVER))
+            .onRegister(compassNodeExist(GTCompassSections.TRANSFER, "robot_arm_block"))
             .register();
     public static ItemEntry<ComponentItem> ROBOT_ARM_UV = REGISTRATE.item("uv_robot_arm", ComponentItem::create)
             .lang("UV Robot Arm")
-            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[7]))).onRegister(attach(new TooltipBehavior(lines -> {
+            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[7]), new RobotArmBehaviour(GTValues.UV))).onRegister(attach(new TooltipBehavior(lines -> {
                 lines.add(Component.translatable("item.gtceu.robot.arm.tooltip"));
                 lines.add(Component.translatable("gtceu.universal.tooltip.item_transfer_rate_stacks", 16));
             })))
             .onRegister(compassNodeExist(GTCompassSections.COVERS, "robot_arm", GTCompassNodes.COVER))
+            .onRegister(compassNodeExist(GTCompassSections.TRANSFER, "robot_arm_block"))
             .register();
     public static ItemEntry<ComponentItem> ROBOT_ARM_UHV = GTCEuAPI.isHighTier() ? REGISTRATE.item("uhv_robot_arm", ComponentItem::create)
             .lang("UHV Robot Arm")
-            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[8]))).onRegister(attach(new TooltipBehavior(lines -> {
+            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[8]), new RobotArmBehaviour(GTValues.UHV))).onRegister(attach(new TooltipBehavior(lines -> {
                 lines.add(Component.translatable("item.gtceu.robot.arm.tooltip"));
                 lines.add(Component.translatable("gtceu.universal.tooltip.item_transfer_rate_stacks", 16));
             })))
             .onRegister(compassNodeExist(GTCompassSections.COVERS, "robot_arm", GTCompassNodes.COVER))
+            .onRegister(compassNodeExist(GTCompassSections.TRANSFER, "robot_arm_block"))
             .register() : null;
     public static ItemEntry<ComponentItem> ROBOT_ARM_UEV = GTCEuAPI.isHighTier() ? REGISTRATE.item("uev_robot_arm", ComponentItem::create)
             .lang("UEV Robot Arm")
-            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[9]))).onRegister(attach(new TooltipBehavior(lines -> {
+            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[9]), new RobotArmBehaviour(GTValues.UEV))).onRegister(attach(new TooltipBehavior(lines -> {
                 lines.add(Component.translatable("item.gtceu.robot.arm.tooltip"));
                 lines.add(Component.translatable("gtceu.universal.tooltip.item_transfer_rate_stacks", 16));
             })))
             .onRegister(compassNodeExist(GTCompassSections.COVERS, "robot_arm", GTCompassNodes.COVER))
+            .onRegister(compassNodeExist(GTCompassSections.TRANSFER, "robot_arm_block"))
             .register() : null;
     public static ItemEntry<ComponentItem> ROBOT_ARM_UIV = GTCEuAPI.isHighTier() ? REGISTRATE.item("uiv_robot_arm", ComponentItem::create)
             .lang("UIV Robot Arm")
-            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[10]))).onRegister(attach(new TooltipBehavior(lines -> {
+            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[10]), new RobotArmBehaviour(GTValues.UIV))).onRegister(attach(new TooltipBehavior(lines -> {
                 lines.add(Component.translatable("item.gtceu.robot.arm.tooltip"));
                 lines.add(Component.translatable("gtceu.universal.tooltip.item_transfer_rate_stacks", 16));
             })))
             .onRegister(compassNodeExist(GTCompassSections.COVERS, "robot_arm", GTCompassNodes.COVER))
+            .onRegister(compassNodeExist(GTCompassSections.TRANSFER, "robot_arm_block"))
             .register() : null;
     public static ItemEntry<ComponentItem> ROBOT_ARM_UXV = GTCEuAPI.isHighTier() ? REGISTRATE.item("uxv_robot_arm", ComponentItem::create)
             .lang("UXV Robot Arm")
-            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[11]))).onRegister(attach(new TooltipBehavior(lines -> {
+            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[11]), new RobotArmBehaviour(GTValues.UXV))).onRegister(attach(new TooltipBehavior(lines -> {
                 lines.add(Component.translatable("item.gtceu.robot.arm.tooltip"));
                 lines.add(Component.translatable("gtceu.universal.tooltip.item_transfer_rate_stacks", 16));
             })))
             .onRegister(compassNodeExist(GTCompassSections.COVERS, "robot_arm", GTCompassNodes.COVER))
+            .onRegister(compassNodeExist(GTCompassSections.TRANSFER, "robot_arm_block"))
             .register() : null;
     public static ItemEntry<ComponentItem> ROBOT_ARM_OpV = GTCEuAPI.isHighTier() ? REGISTRATE.item("opv_robot_arm", ComponentItem::create)
             .lang("OpV Robot Arm")
-            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[12]))).onRegister(attach(new TooltipBehavior(lines -> {
+            .onRegister(attach(new CoverPlaceBehavior(GTCovers.ROBOT_ARMS[12]), new RobotArmBehaviour(GTValues.OpV))).onRegister(attach(new TooltipBehavior(lines -> {
                 lines.add(Component.translatable("item.gtceu.robot.arm.tooltip"));
                 lines.add(Component.translatable("gtceu.universal.tooltip.item_transfer_rate_stacks", 16));
             })))
             .onRegister(compassNodeExist(GTCompassSections.COVERS, "robot_arm", GTCompassNodes.COVER))
+            .onRegister(compassNodeExist(GTCompassSections.TRANSFER, "robot_arm_block"))
             .register() : null;
 
     public static ItemEntry<Item> FIELD_GENERATOR_LV= REGISTRATE.item("lv_field_generator", Item::new).lang("LV Field Generator").onRegister(compassNodeExist(GTCompassSections.COMPONENTS, "field_generator")).register();

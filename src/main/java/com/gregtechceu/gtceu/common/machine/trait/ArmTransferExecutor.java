@@ -1,32 +1,28 @@
 package com.gregtechceu.gtceu.common.machine.trait;
 
 import com.google.common.collect.ImmutableList;
-import com.gregtechceu.gtceu.api.cover.filter.ItemFilter;
 import com.gregtechceu.gtceu.api.gui.widget.ArmTransferExecutorConsole;
 import com.gregtechceu.gtceu.api.machine.ConditionalSubscriptionHandler;
 import com.gregtechceu.gtceu.api.machine.trait.MachineTrait;
 import com.gregtechceu.gtceu.common.machine.transfer.ArmTransferOP;
 import com.gregtechceu.gtceu.common.machine.transfer.RobotArmMachine;
+import com.lowdragmc.lowdraglib.gui.compass.CompassManager;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.side.item.ItemTransferHelper;
-import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
-import com.lowdragmc.lowdraglib.utils.BlockPosFace;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BarrelBlockEntity;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ArmTransferExecutor extends MachineTrait {
     public static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(ArmTransferExecutor.class);
@@ -48,7 +44,7 @@ public class ArmTransferExecutor extends MachineTrait {
     private boolean randomMode;
     @Getter
     @Persisted
-    private boolean queueMode;
+    private boolean resetMode;
     @Persisted
     private final List<ArmTransferOP> opList = new ArrayList<>();
     @Persisted
@@ -64,7 +60,6 @@ public class ArmTransferExecutor extends MachineTrait {
     public ArmTransferExecutor(RobotArmMachine armMachine) {
         super(armMachine);
         this.executorSubscription = new ConditionalSubscriptionHandler(armMachine, this::execute, () -> !this.opList.isEmpty());
-        opList.add(new ArmTransferOP(new BlockPosFace(armMachine.getPos(), Direction.UP), new BlockPosFace(armMachine.getPos(), Direction.DOWN), ItemFilter.EMPTY));
     }
 
     @Override
@@ -92,6 +87,10 @@ public class ArmTransferExecutor extends MachineTrait {
         return getMachine().getMaxOpCount();
     }
 
+    public int getMaxTransferAmount() {
+        return getMachine().getMaxTransferAmount();
+    }
+
     public void setBlockMode(boolean blockMode) {
         this.blockMode = blockMode;
         reset();
@@ -102,8 +101,8 @@ public class ArmTransferExecutor extends MachineTrait {
         reset();
     }
 
-    public void setQueueMode(boolean queueMode) {
-        this.queueMode = queueMode;
+    public void setResetMode(boolean resetMode) {
+        this.resetMode = resetMode;
         reset();
     }
 
@@ -111,14 +110,18 @@ public class ArmTransferExecutor extends MachineTrait {
         return ImmutableList.copyOf(opList);
     }
 
-    public void addOp(ArmTransferOP op, int index) {
+    public ImmutableList<Integer> getQueue() {
+        return ImmutableList.copyOf(opQueue);
+    }
+
+    public void addOp(int index, ArmTransferOP op) {
         opList.add(index, op);
         executorSubscription.updateSubscription();
         reset();
     }
 
     public void addOp(ArmTransferOP op) {
-        addOp(op, opList.size());
+        addOp(opList.size(), op);
     }
 
     public void removeOp(int index) {
@@ -183,6 +186,7 @@ public class ArmTransferExecutor extends MachineTrait {
                 }
             }
             setState(State.IDLE);
+            execute(); // quick start next round;
         } else if (lastState == State.TRANSFERRING) {
             // transferring
             var op = getCurrentOp();
@@ -191,7 +195,7 @@ public class ArmTransferExecutor extends MachineTrait {
                 return;
             }
 
-            var transferredItems = doTransfer(op, getMachine().getMaxTransferAmount());
+            var transferredItems = doTransfer(op);
             if (transferredItems.length == 0) {
                 // it should not happen unless the source or dest is changed.
                 // in this case, we just try to schedule searching again.
@@ -211,7 +215,11 @@ public class ArmTransferExecutor extends MachineTrait {
             if (cooldown <= 0) {
                 cooldown = 0;
                 currentOp = -1;
-                setState(State.SEARCHING);
+                if (isResetMode()) {
+                    reset();
+                } else {
+                    setState(State.SEARCHING);
+                }
             } else {
                 cooldown--;
             }
@@ -219,16 +227,19 @@ public class ArmTransferExecutor extends MachineTrait {
     }
 
     @NotNull
-    private ItemStack[] doTransfer(ArmTransferOP op, int maxTransferAmount) {
-        int leftAmount = maxTransferAmount;
+    private ItemStack[] doTransfer(ArmTransferOP op) {
         ItemStack[] transferredItems = new ItemStack[0];
-
         var source = ItemTransferHelper.getItemTransfer(machine.getLevel(), op.from().pos, op.from().facing);
         var dest = ItemTransferHelper.getItemTransfer(machine.getLevel(), op.to().pos, op.to().facing);
         if (source != null && dest != null) {
+            var filter = op.getFilter();
+            int maxTransferAmount = getMachine().getMaxTransferAmount();
+            var transferAmount = op.transferAmount();
+            if (transferAmount > maxTransferAmount) return new ItemStack[0];
+            var leftAmount = transferAmount > -1 ? transferAmount : maxTransferAmount;
             for (int slotIndex = 0; slotIndex < source.getSlots(); slotIndex++) {
                 var extracted = source.extractItem(slotIndex, leftAmount, true);
-                if (!extracted.isEmpty()) {
+                if (filter.test(extracted) && !extracted.isEmpty()) {
                     var remained = ItemTransferHelper.insertItem(dest, extracted, true);
                     var expected = extracted.getCount() - remained.getCount();
                     if (expected > 0) {
@@ -242,7 +253,7 @@ public class ArmTransferExecutor extends MachineTrait {
                         if (!remained.isEmpty()) { // it should not happen!!!!! drop extra items to the ground
                             Block.popResource(machine.getLevel(), op.to().pos, remained);
                         }
-                        if (leftAmount == 0) {
+                        if (leftAmount <= 0) {
                             break;
                         }
                     }
@@ -257,12 +268,25 @@ public class ArmTransferExecutor extends MachineTrait {
         var source = ItemTransferHelper.getItemTransfer(machine.getLevel(), op.from().pos, op.from().facing);
         var dest = ItemTransferHelper.getItemTransfer(machine.getLevel(), op.to().pos, op.to().facing);
         if (source != null && dest != null) {
+            var filter = op.getFilter();
+            var maxTransferAmount = getMachine().getMaxTransferAmount();
+            var transferAmount = op.transferAmount();
+            if (transferAmount > maxTransferAmount) return false;
+            var leftAmount = transferAmount > -1 ? transferAmount : maxTransferAmount;
             for (int slotIndex = 0; slotIndex < source.getSlots(); slotIndex++) {
-                var extracted = source.extractItem(slotIndex, 64, true);
-                if (!extracted.isEmpty()) {
+                var extracted = source.extractItem(slotIndex, leftAmount, true);
+                if (filter.test(extracted) && !extracted.isEmpty()) {
                     var remained = ItemTransferHelper.insertItem(dest, extracted, true);
-                    if (extracted.getCount() > remained.getCount()) {
-                        return true;
+                    var transferred = extracted.getCount() - remained.getCount();
+                    if (transferAmount == -1) {
+                        if (transferred > 0) {
+                            return true;
+                        }
+                    } else {
+                        leftAmount -= transferred;
+                        if (leftAmount <= 0) {
+                            return true;
+                        }
                     }
                 }
             }

@@ -33,6 +33,11 @@ public class GTCompassSections {
             .priority(priority++)
             .register();
 
+    public final static CompassSection TRANSFER = CompassSection.create("transfer")
+        .icon(() -> new ItemStackTexture(GTBlocks.FLUID_PIPE_BLOCKS.get(TagPrefix.pipeNormalFluid, GTMaterials.Steel).asStack()))
+        .priority(priority++)
+        .register();
+
     public final static CompassSection COVERS = CompassSection.create("covers")
             .icon(() -> new ItemStackTexture(GTItems.ITEM_FILTER.asStack()))
             .priority(priority++)

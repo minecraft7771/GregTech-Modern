@@ -73,6 +73,10 @@ public class GTCEu {
         return LDLib.isModLoaded(GTValues.MODID_APPENG);
     }
 
+    public static boolean isFlywheelLoaded() {
+        return LDLib.isModLoaded(GTValues.MODID_FLY_WHEEL);
+    }
+
     public static boolean isAlmostUnifiedLoaded() {
         return LDLib.isModLoaded(GTValues.MODID_ALMOSTUNIFIED);
     }

@@ -1241,6 +1241,21 @@ public class LangHandler {
         provider.add("gtceu.gui.config_slot.remove", "§7Right click to §4clear§7 config slot.§r");
 
         provider.add("gtceu.machine.parallel_hatch.display", "Adjust the maximum parallel of the multiblock");
+        provider.add("gtceu.gui.arm_console.block_mode.enabled", "Block Mode §eEnabled§r (check compass for more details)");
+        provider.add("gtceu.gui.arm_console.block_mode.disabled", "Block Mode §4Disabled§r (check compass for more details)");
+        provider.add("gtceu.gui.arm_console.random_mode.enabled", "Random Mode §eEnabled§r (check compass for more details)");
+        provider.add("gtceu.gui.arm_console.random_mode.disabled", "Random Mode §4Disabled§r (check compass for more details)");
+        provider.add("gtceu.gui.arm_console.reset_mode.enabled", "Reset Mode §eEnabled§r (check compass for more details)");
+        provider.add("gtceu.gui.arm_console.reset_mode.disabled", "Reset Mode §4Disabled§r (check compass for more details)");
+        provider.add("gtceu.gui.arm_console.set_as_source", "Set as source");
+        provider.add("gtceu.gui.arm_console.set_as_target", "Set as target");
+        provider.add("gtceu.gui.arm_console.add_op", "Add operation");
+        provider.add("gtceu.gui.arm_console.remove_op", "Remove operation");
+        provider.add("gtceu.gui.arm_console.move_up", "Move up");
+        provider.add("gtceu.gui.arm_console.move_down", "Move down");
+        provider.add("gtceu.gui.arm_console.queue", "Pending queue");
+        provider.add("gtceu.gui.arm_console.reset_queue", "Reset pending queue");
+        multiLang(provider, "gtceu.gui.arm_console.transfer_amount", "Transfer amount", "§e-1 - as many as possible§r", "§e>0 - exact amount§r");
     }
 
     /**

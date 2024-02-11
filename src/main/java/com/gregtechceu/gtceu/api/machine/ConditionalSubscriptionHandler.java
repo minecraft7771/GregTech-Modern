@@ -1,6 +1,7 @@
 package com.gregtechceu.gtceu.api.machine;
 
 import com.gregtechceu.gtceu.api.blockentity.ITickSubscription;
+import com.lowdragmc.lowdraglib.utils.DummyWorld;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
@@ -37,6 +38,8 @@ public class ConditionalSubscriptionHandler {
     public void initialize(Level level) {
         if (level instanceof ServerLevel serverLevel) {
             this.initialize(serverLevel.getServer());
+        } else if (level instanceof DummyWorld) {
+            updateSubscription();
         }
     }
 

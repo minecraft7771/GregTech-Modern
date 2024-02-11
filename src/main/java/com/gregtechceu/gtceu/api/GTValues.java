@@ -105,6 +105,7 @@ public class GTValues {
             MODID_RUBIDIUM = "rubidium",
             MODID_EMBEDDIUM = "embeddium",
             MODID_CREATE = "create",
+            MODID_FLY_WHEEL = "flywheel",
             MODID_REBORN_ENERGY = "team_reborn_energy",
             MODID_ALMOSTUNIFIED = "almostunified",
             MODID_CURIOS = "curios";

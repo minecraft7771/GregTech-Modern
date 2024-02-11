@@ -8,6 +8,9 @@ import com.lowdragmc.lowdraglib.gui.widget.SwitchWidget;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.function.BooleanSupplier;
 
@@ -22,6 +25,8 @@ public class ToggleButtonWidget extends SwitchWidget {
     private final IGuiTexture texture;
     @Setter
     private String tooltipText;
+    @Setter
+    private BooleanSupplier predicate;
 
     public ToggleButtonWidget(int xPosition, int yPosition, int width, int height, BooleanSupplier isPressedCondition, BooleanConsumer setPressedExecutor) {
         this(xPosition, yPosition, width, height, GuiTextures.VANILLA_BUTTON, isPressedCondition, setPressedExecutor);
@@ -55,6 +60,41 @@ public class ToggleButtonWidget extends SwitchWidget {
         super.updateScreen();
         if (tooltipText != null) {
             setHoverTooltips(tooltipText + (isPressed ? ".enabled" : ".disabled"));
+        }
+    }
+
+    @Override
+    public void writeInitialData(FriendlyByteBuf buffer) {
+        super.writeInitialData(buffer);
+        var result = predicate == null || predicate.getAsBoolean();
+        setVisible(result);
+        buffer.writeBoolean(result);
+    }
+
+    @Override
+    public void readInitialData(FriendlyByteBuf buffer) {
+        super.readInitialData(buffer);
+        setVisible(buffer.readBoolean());
+    }
+
+    @Override
+    public void detectAndSendChanges() {
+        super.detectAndSendChanges();
+        if (predicate != null) {
+            if (isVisible() != predicate.getAsBoolean()) {
+                setVisible(!isVisible());
+                writeUpdateInfo(1, buf -> buf.writeBoolean(isVisible()));
+            }
+        }
+    }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void readUpdateInfo(int id, FriendlyByteBuf buffer) {
+        if (id == 1) {
+            setVisible(buffer.readBoolean());
+        } else {
+            super.readUpdateInfo(id, buffer);
         }
     }
 }

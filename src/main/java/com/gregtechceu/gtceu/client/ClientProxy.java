@@ -5,10 +5,12 @@ import com.gregtechceu.gtceu.api.gui.compass.GTCompassUIConfig;
 import com.gregtechceu.gtceu.api.gui.compass.GTRecipeViewCreator;
 import com.gregtechceu.gtceu.api.gui.compass.MultiblockAction;
 import com.gregtechceu.gtceu.common.CommonProxy;
+import com.gregtechceu.gtceu.common.data.GTPartialModels;
 import com.lowdragmc.lowdraglib.gui.compass.CompassManager;
 import com.lowdragmc.lowdraglib.gui.compass.component.RecipeComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 /**
  * @author KilaBash
@@ -26,5 +28,8 @@ public class ClientProxy extends CommonProxy {
         RecipeComponent.registerRecipeViewCreator(new GTRecipeViewCreator());
         CompassManager.INSTANCE.registerUIConfig(GTCEu.MOD_ID, new GTCompassUIConfig());
         CompassManager.INSTANCE.registerAction("multiblock", MultiblockAction::new);
+        if (GTCEu.isFlywheelLoaded()) {
+            GTPartialModels.init();
+        }
     }
 }

@@ -21,7 +21,7 @@ public interface ItemFilter extends Filter<ItemStack, ItemFilter> {
     Map<Item, Function<ItemStack, ItemFilter>> FILTERS = new HashMap<>();
 
     static ItemFilter loadFilter(ItemStack itemStack) {
-        return FILTERS.get(itemStack.getItem()).apply(itemStack);
+        return FILTERS.getOrDefault(itemStack.getItem(), i -> ItemFilter.EMPTY).apply(itemStack);
     }
 
     /**
@@ -62,6 +62,10 @@ public interface ItemFilter extends Filter<ItemStack, ItemFilter> {
 
         @Override public void setOnUpdated(Consumer<ItemFilter> onUpdated) {
             throw new NotImplementedException("Not available for empty item filter");
+        }
+
+        @Override public boolean supportsAmounts() {
+            return false;
         }
     };
 }

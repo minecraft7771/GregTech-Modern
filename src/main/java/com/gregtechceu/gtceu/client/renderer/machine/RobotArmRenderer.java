@@ -3,11 +3,13 @@ package com.gregtechceu.gtceu.client.renderer.machine;
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.common.machine.transfer.RobotArmMachine;
+import com.jozufozu.flywheel.backend.Backend;
 import com.lowdragmc.lowdraglib.LDLib;
 import com.lowdragmc.lowdraglib.client.model.ModelFactory;
 import com.lowdragmc.lowdraglib.client.renderer.impl.IModelRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
@@ -84,14 +86,15 @@ public class RobotArmRenderer extends IModelRenderer {
     @Override
     @OnlyIn(Dist.CLIENT)
     public void render(BlockEntity blockEntity, float partialTicks, PoseStack stack, MultiBufferSource bufferSource, int combinedLight, int combinedOverlay) {
+        var useInstance = GTCEu.isFlywheelLoaded() && Backend.canUseInstancing(blockEntity.getLevel());
         if (blockEntity instanceof IMachineBlockEntity machineBlockEntity && machineBlockEntity.getMetaMachine() instanceof RobotArmMachine robotArm) {
             var rotation = robotArm.getArmRotation(partialTicks);
-            renderRobotArm(stack, bufferSource, combinedLight, combinedOverlay, rotation.x(), rotation.y(), rotation.z(), rotation.w(), robotArm.getClampRotation(partialTicks), robotArm.getTransferredItems());
+            renderRobotArm(useInstance, stack, bufferSource, combinedLight, combinedOverlay, rotation.x(), rotation.y(), rotation.z(), rotation.w(), robotArm.getClampRotation(partialTicks), robotArm.getTransferredItems());
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    protected void renderRobotArm(PoseStack stack, MultiBufferSource bufferSource, int combinedLight, int combinedOverlay, float axisDegree, float arm1Degree, float arm2Degree, float arm3Degree, float clampDegree, @Nullable ItemStack[] heldStacks) {
+    protected void renderRobotArm(boolean useInstance, PoseStack stack, MultiBufferSource bufferSource, int combinedLight, int combinedOverlay, float axisDegree, float arm1Degree, float arm2Degree, float arm3Degree, float clampDegree, @Nullable ItemStack[] heldStacks) {
         var buffer = bufferSource.getBuffer(Sheets.cutoutBlockSheet());
         var axis = getBakedModel(AXIS_Y);
         var arm1 = getBakedModel(ARM_1);
@@ -101,34 +104,34 @@ public class RobotArmRenderer extends IModelRenderer {
         stack.pushPose();
         // axis
         stack.translate(0.5, 0, 0.5);
-        stack.mulPose(new Quaternionf().rotateAxis((float) Math.toRadians(axisDegree), 0, 1, 0));
+        stack.mulPose(Axis.YP.rotationDegrees(axisDegree));
         stack.translate(-0.5, 0, -0.5);
-        renderBlockModel(stack, buffer, combinedLight, combinedOverlay, axis);
+        if (!useInstance) renderBlockModel(stack, buffer, combinedLight, combinedOverlay, axis);
 
         // arm1
         stack.translate(0.5f, 5 / 16f, 1f);
-        stack.mulPose(new Quaternionf().rotateAxis((float) Math.toRadians(arm1Degree), 1, 0, 0));
+        stack.mulPose(Axis.XP.rotationDegrees(arm1Degree));
         stack.translate(-0.5f, -5 / 16f, -1f);
-        renderBlockModel(stack, buffer, combinedLight,combinedOverlay, arm1);
+        if (!useInstance) renderBlockModel(stack, buffer, combinedLight,combinedOverlay, arm1);
 
         // arm2
         stack.translate(0.5f, 5 / 16f, 0);
-        stack.mulPose(new Quaternionf().rotateAxis((float) Math.toRadians(arm2Degree), 1, 0, 0));
+        stack.mulPose(Axis.XP.rotationDegrees(arm2Degree));
         stack.translate(-0.5f, -5 / 16f, 0);
-        renderBlockModel(stack, buffer, combinedLight, combinedOverlay, arm2);
+        if (!useInstance) renderBlockModel(stack, buffer, combinedLight, combinedOverlay, arm2);
 
         // arm3
         stack.translate(0.5f, 1 + 5 / 16f, 0);
-        stack.mulPose(new Quaternionf().rotateAxis((float) Math.toRadians(arm3Degree), 1, 0, 0));
+        stack.mulPose(Axis.XP.rotationDegrees(arm3Degree));
         stack.translate(-0.5f, -(1 + 5 / 16f), 0);
-        renderBlockModel(stack, buffer, combinedLight, combinedOverlay, arm3);
+        if (!useInstance) renderBlockModel(stack, buffer, combinedLight, combinedOverlay, arm3);
 
         // clamp
         // TODO clamp rotation
 //        stack.translate(0.5f, 1 + 5 / 16f, 1f);
 //        stack.mulPose(new Quaternionf().rotateAxis((float) Math.toRadians(clampDegree), 1, 0, 0));
 //        stack.translate(-0.5f, -(1 + 5 / 16f), -1f);
-//        renderBlockModel(stack, buffer, combinedLight, combinedOverlay, clamp);
+//        if (!useInstance) renderBlockModel(stack, buffer, combinedLight, combinedOverlay, clamp);
 
         // held items
         if (heldStacks != null) {

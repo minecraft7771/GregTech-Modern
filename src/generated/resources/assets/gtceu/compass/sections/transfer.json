@@ -1,0 +1,7 @@
+{
+  "button_texture": {
+    "type": "item",
+    "res": "gtceu:steel_normal_fluid_pipe"
+  },
+  "priority": 2
+}

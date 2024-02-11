@@ -27,6 +27,7 @@ import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.DropSaved;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
+import com.lowdragmc.lowdraglib.utils.DummyWorld;
 import com.mojang.blaze3d.MethodsReturnNonnullByDefault;
 import lombok.Getter;
 import lombok.Setter;
@@ -157,7 +158,7 @@ public class QuantumChestMachine extends TieredMachine implements IAutoOutputIte
             @Override
             public void onContentsChanged() {
                 super.onContentsChanged();
-                if (!isRemote()) {
+                if (!isRemote() || getLevel() instanceof DummyWorld) {
                     stored = getStackInSlot(0).copy();
                     storedAmount = stored.getCount();
                     stored.setCount(1);
