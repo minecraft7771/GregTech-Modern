@@ -26,6 +26,8 @@ public class GTRecipes {
      * to respond to a config option in ConfigHolder.
      */
     public static void recipeAddition(Consumer<FinishedRecipe> consumer) {
+        AssemblyLineManager.registerScannerLogic();
+
         // Decomposition info loading
         MaterialInfoLoader.init();
 
